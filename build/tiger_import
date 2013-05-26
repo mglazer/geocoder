@@ -7,11 +7,14 @@ BASE=$(dirname $0)
 PATH=$PATH:$BASE
 SQL="$BASE/sql"
 HELPER_LIB="$BASE/../lib/geocoder/us/sqlite3.so"
-SHP2SQLITE=../src/shp2sqlite/shp2sqlite 
+SHP2SQLITE=$BASE/shp2sqlite 
+SQLITE3=/usr/local/bin/sqlite3
 DATABASE=$1
 SOURCE=$2
 shift
 shift
+
+echo $HELPER_LIB
 
 mkdir -p $TMP || exit 1
 
@@ -57,10 +60,10 @@ fi | sort | while read code; do
        # Convert each DBF into SQL statements likewise.
        shp2sqlite -an ${TMP}/*_${file}.dbf tiger_${file}
      done && \
-     cat ${SQL}/convert.sql) | sqlite3 $DATABASE
+     cat ${SQL}/convert.sql) | $SQLITE3 $DATABASE
     # Finally, do the transform/load phase (convert.sql)
     # and clean up the temporary files.
     rm -f $TMP/*
 done 2>&1 | tee import-$$.log
-rm -rf $TMP
+#rm -rf $TMP
 

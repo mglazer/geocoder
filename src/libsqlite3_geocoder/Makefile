@@ -6,7 +6,7 @@ CC=gcc -fPIC
 
 libsqlite3_geocoder.so: extension.o wkb_compress.o util.o metaphon.o levenshtein.o
 #	$(CC) -lm -lsqlite3 -I/usr/include -shared $^ -o $@ 
-	$(CC) $^ -lm -lsqlite3 -shared -o $@ 
+	$(CC) $^ -lm -L/usr/local/lib -lsqlite3 -shared -o $@ 
 
 test: test_wkb_compress test_levenshtein
 
