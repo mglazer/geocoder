@@ -7,7 +7,7 @@ module Sinatra
     attr_accessor :db
     def self.registered(app)
       options = {:cache_size => 100000}
-       @@db = Geocoder::US::Database.new("/Users/katechapman/usgeocode.db", options)
+       @@db = Geocoder::US::Database.new(app.settings.database, options)
        stats = Logger.new("geocoderstats.log", 10, 1024000)
        app.get '/' do
      	   unless params[:address].nil?
@@ -31,7 +31,7 @@ module Sinatra
 	          erb :index
 	        end
         end
-       
+
        app.post '/batch' do
          failed_codes = 0
          total_codes = 0
@@ -39,27 +39,27 @@ module Sinatra
        	if params[:uploaded_csv].nil?
           csv_file = request.env["rack.input"].read
        	  csv = FasterCSV.parse(csv_file, :row_sep => "*", :col_sep => "|")
-       else 
+       else
        	  FileUtils.mkdir_p('uploads/')
-          FileUtils.mv(params[:uploaded_csv][:tempfile].path, "uploads/#{params[:uploaded_csv][:filename]}")  
+          FileUtils.mv(params[:uploaded_csv][:tempfile].path, "uploads/#{params[:uploaded_csv][:filename]}")
           csv_file = open("uploads/#{params[:uploaded_csv][:filename]}")
           @filename = params[:uploaded_csv][:filename].gsub(/\.csv/,"")
           csv = FasterCSV.parse(csv_file)
        end
        	  headers = csv[0]
-       	 
+
        	  @records = csv.collect do |record|
        	    total_codes += 1
        	  next if record == headers
             begin
        	      result = @@db.geocode record[1]
        	      if result.empty?
-       	         result[0] = {:lon => nil, :lat => nil, :precision => 'unmatched', :score => 0}   
-       	         failed_codes += 1 
+       	         result[0] = {:lon => nil, :lat => nil, :precision => 'unmatched', :score => 0}
+       	         failed_codes += 1
        	      end
        	      result.first.merge(headers[0] => record[0])
             rescue Exception => e
-              failed_codes += 1 
+              failed_codes += 1
        	      puts e.message
               next
        	     end
@@ -73,10 +73,10 @@ module Sinatra
        	     builder :atom
        	    when /json/
        	     @records.to_json
-       	     
+
        	    else
        	     erb :index
-       	    end 
+       	    end
           end
         end
       end
