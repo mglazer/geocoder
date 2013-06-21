@@ -4,8 +4,9 @@ require 'json'
 module Geocoder
   class Services < Sinatra::Base
     db_options = {:cache_size => 100000}
-    set :db, Geocoder::US::Database.new('/Volumes/Optibay/impl/tigr/geocoder/database/geocoder.sqlite3', db_options)
+    set :db, Geocoder::US::Database.new('/path/to/geocoder.sqlite3', db_options)
     set :stats, Logger.new("geocoderstats.log", 10, 1024000)
+    stats.level = Logger::DEBUG
 
     get '/' do
       unless params[:address].nil?

@@ -1,8 +1,0 @@
-source 'https://rubygems.org'
-#source 'file://gems'
-
-gem 'sinatra'
-gem 'json'
-#gem 'Geocoder-US'
-gem 'sqlite3'
-gem 'builder'
